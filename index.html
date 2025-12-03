@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tehran Records</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Cinzel', 'serif'],
+            },
+            colors: {
+              cream: '#f7f5f0',
+              charcoal: '#0a0a0a',
+              'vivid-green': '#00d646',
+              'muted-gold': '#c5a059',
+              'gold-light': '#fcf6ba',
+              'gold-dark': '#aa771c',
+              'telegram': '#229ED9',
+            },
+            animation: {
+              'spin-slow': 'spin 12s linear infinite',
+              'spin-subtle': 'spin 20s linear infinite',
+              'float': 'float 3s ease-in-out infinite',
+              'float-up': 'floatUp 2.5s ease-out infinite',
+              'scan': 'scan 8s ease-in-out infinite',
+              'flash': 'flash 0.8s ease-out forwards',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'ping-slow': 'ping 3s cubic-bezier(0, 0, 0.2, 1) infinite',
+              'slide-in': 'slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'slide-out': 'slideOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              floatUp: {
+                '0%': { transform: 'translateY(0) scale(0.5)', opacity: '0' },
+                '20%': { opacity: '1' },
+                '100%': { transform: 'translateY(-60px) scale(1.2)', opacity: '0' },
+              },
+              scan: {
+                '0%': { backgroundPosition: '0% 50%' },
+                '100%': { backgroundPosition: '100% 50%' },
+              },
+              flash: {
+                '0%': { opacity: '1' },
+                '100%': { opacity: '0', visibility: 'hidden' }
+              },
+              slideIn: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(0)' }
+              },
+              slideOut: {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-100%)' }
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --bg-primary: #050505;
+        --bg-secondary: #111;
+        --text-primary: #e5e5e5;
+        --text-secondary: #a8a29e;
+        --glass-bg: rgba(20, 20, 20, 0.7);
+        --glass-border: rgba(197, 160, 89, 0.2);
+        --header-bg: rgba(0, 0, 0, 0.8);
+        --sidebar-bg: #0a0a0a;
+      }
+
+      body.light-mode {
+        --bg-primary: #f7f5f0;
+        --bg-secondary: #eecfa1;
+        --text-primary: #0a0a0a;
+        --text-secondary: #4a4a4a;
+        --glass-bg: rgba(255, 255, 255, 0.65);
+        --glass-border: rgba(170, 119, 28, 0.3);
+        --header-bg: rgba(255, 255, 255, 0.9);
+        --sidebar-bg: #f0ebe0;
+      }
+
+      /* Global Reset & Scrollbar */
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        transition: background-color 0.5s ease, color 0.5s ease;
+      }
+      
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #bf953f, #aa771c);
+        border-radius: 4px;
+      }
+
+      /* Parallax Background */
+      .parallax-bg {
+        background-image: url('https://images.unsplash.com/photo-1605647540924-852290f6b0d5?q=80&w=2000&auto=format&fit=crop'); 
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        opacity: 0.3;
+      }
+      
+      body.light-mode .parallax-bg {
+        background-image: url('https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=2000&auto=format&fit=crop');
+        opacity: 0.15;
+        filter: sepia(0.5);
+      }
+
+      .parallax-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85); /* Darken for readability */
+        z-index: -1;
+        transition: background 0.5s ease;
+      }
+      
+      body.light-mode .parallax-overlay {
+        background: rgba(247, 245, 240, 0.85);
+      }
+
+      /* Gold Chrome Text Effect */
+      .text-gold-chrome {
+        background: linear-gradient(
+          to bottom, 
+          #bf953f 0%, 
+          #fcf6ba 25%, 
+          #b38728 50%, 
+          #fbf5b7 75%, 
+          #aa771c 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+      }
+
+      /* Enhanced Scan Line Effect - High Definition & Gold Only */
+      .scan-text {
+        position: relative;
+        background: linear-gradient(
+          110deg, 
+          #aa771c 0%, 
+          #bf953f 20%, 
+          #fcf6ba 45%, 
+          #ffffff 50%, 
+          #fcf6ba 55%, 
+          #bf953f 80%, 
+          #aa771c 100%
+        );
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: scan 8s linear infinite; /* Slow motion */
+      }
+
+      .logo-scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to right, 
+          transparent 0%, 
+          rgba(255,255,255,0) 45%,
+          rgba(255,255,255,0.9) 50%, 
+          rgba(255,255,255,0) 55%,
+          transparent 100%
+        );
+        transform: skewX(-25deg) translateX(-150%);
+        animation: logo-scan 8s ease-in-out infinite; 
+        pointer-events: none;
+        mix-blend-mode: overlay; 
+      }
+      
+      @keyframes logo-scan {
+        0% { transform: skewX(-25deg) translateX(-150%); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: skewX(-25deg) translateX(150%); opacity: 0; }
+      }
+
+      /* Gold Vinyl Record CSS */
+      .gold-record {
+        background: repeating-radial-gradient(
+          #8a6e2f 0, 
+          #8a6e2f 2px, 
+          #aa771c 3px, 
+          #aa771c 4px,
+          #fcf6ba 5px
+        );
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+      }
+      .gold-record-shine {
+        background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.3) 100%);
+      }
+
+      /* Chrome Vinyl Effect for Sidebar */
+      .chrome-vinyl {
+        background: conic-gradient(
+          from 0deg,
+          #555,
+          #fff 15%,
+          #555 30%,
+          #222 50%,
+          #555 70%,
+          #fff 85%,
+          #555 100%
+        );
+        border: 2px solid #888;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        position: relative;
+      }
+      .chrome-vinyl::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: repeating-radial-gradient(
+          transparent 0, 
+          transparent 2px, 
+          rgba(0,0,0,0.1) 3px, 
+          rgba(0,0,0,0.1) 4px
+        );
+      }
+
+      /* Glassmorphism */
+      .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+      }
+      
+      .glass-header {
+        background: var(--header-bg);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--glass-border);
+        transition: background 0.5s ease;
+      }
+
+      .text-glow {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+      
+      body.light-mode .text-glow {
+        text-shadow: 0 0 10px rgba(170, 119, 28, 0.2);
+      }
+
+      /* Sidebar & Transitions */
+      .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(5px);
+        z-index: 90;
+        opacity: 0;
+        animation: fadeIn 0.3s forwards;
+      }
+      
+      .sidebar-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        height: 100vh;
+        background: var(--sidebar-bg);
+        z-index: 100;
+        box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--glass-border);
+        transition: background-color 0.5s ease;
+      }
+
+      .qr-panel {
+        position: absolute;
+        top: 0;
+        left: 100%; /* Initially hidden to the right of the sidebar */
+        width: 280px;
+        height: 100vh;
+        background: var(--sidebar-bg);
+        border-left: 1px solid var(--glass-border);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: translateX(-100%); /* Hidden state logic handled by React/Tailwind classes usually, but here is base */
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.5s ease;
+        z-index: 99;
+      }
+
+      .qr-panel.open {
+        transform: translateX(0);
+      }
+      
+      @keyframes fadeIn {
+        to { opacity: 1; }
+      }
+
+      /* Custom Input Autocomplete fix */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus, 
+      input:-webkit-autofill:active{
+          -webkit-box-shadow: 0 0 0 30px #111 inset !important;
+          -webkit-text-fill-color: white !important;
+      }
+      
+      body.light-mode input:-webkit-autofill,
+      body.light-mode input:-webkit-autofill:hover, 
+      body.light-mode input:-webkit-autofill:focus, 
+      body.light-mode input:-webkit-autofill:active{
+          -webkit-box-shadow: 0 0 0 30px #f7f5f0 inset !important;
+          -webkit-text-fill-color: black !important;
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "vite": "https://aistudiocdn.com/vite@^7.2.6",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
+</head>
+  <body class="antialiased selection:bg-muted-gold selection:text-black">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
