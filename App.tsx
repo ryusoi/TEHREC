@@ -29,7 +29,8 @@ import {
   Globe,
   Waves,
   ChevronUp,
-  Eye
+  Eye,
+  Mic
 } from 'lucide-react';
 import { 
   PRODUCTS, 
@@ -1116,14 +1117,18 @@ const OwnerTributeSection: React.FC<{ t: (k: string) => string }> = ({ t }) => {
   );
 };
 
-const TurntableChat: React.FC = () => {
+const TurntableChat: React.FC<{ language: Language }> = ({ language }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: "Greetings! I'm Spin, your virtual digging assistant. Looking for rare gold?", timestamp: Date.now() }
+    { role: 'model', text: "Greetings! I'm Spin, your professional musical guide and historian at Tehran Records. Ask me anything about music history, genres, or check our exclusive gold vault!", timestamp: Date.now() }
   ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Ref to store speech recognition instance
+  const recognitionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1148,10 +1153,66 @@ const TurntableChat: React.FC = () => {
     setIsThinking(false);
   };
 
+  // Voice Input Logic
+  const handleVoiceInput = () => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Your browser does not support voice input. Please try Chrome or Safari.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    // Set language based on app state for accent handling
+    switch (language) {
+      case 'fa':
+        recognition.lang = 'fa-IR';
+        break;
+      case 'es':
+        recognition.lang = 'es-ES';
+        break;
+      default:
+        recognition.lang = 'en-US';
+    }
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end">
       {isOpen && (
-        <div className="mb-4 w-[350px] sm:w-[400px] bg-[#1a1a1a] rounded-t-xl rounded-bl-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-gold-dark/40 overflow-hidden flex flex-col h-[550px] animate-float backdrop-blur-xl">
+        <div className="mb-4 w-[350px] sm:w-[400px] bg-[#1a1a1a] rounded-t-xl rounded-bl-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-gold-dark/40 overflow-hidden flex flex-col h-[600px] animate-float backdrop-blur-xl">
           <div className="bg-gradient-to-r from-black to-[#1a1a1a] p-4 flex items-center justify-between border-b border-gold-dark/20">
             <div className="flex items-center gap-3">
                <div className={`w-10 h-10 rounded-full gold-record flex items-center justify-center ${isThinking ? 'animate-spin' : ''}`}>
@@ -1160,7 +1221,7 @@ const TurntableChat: React.FC = () => {
                <div>
                   <span className="text-gold-light font-serif font-bold text-sm block tracking-widest">SPIN ASSISTANT</span>
                   <span className="text-vivid-green text-[10px] uppercase tracking-widest block">
-                     {isThinking ? 'Reading grooves...' : 'Ready to play'}
+                     {isThinking ? 'Composing...' : 'Ready to play'}
                   </span>
                </div>
             </div>
@@ -1173,7 +1234,7 @@ const TurntableChat: React.FC = () => {
              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none"></div>
              {messages.map((msg, idx) => (
                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                 <div className={`max-w-[85%] rounded-lg px-5 py-3 text-sm font-medium leading-relaxed ${
+                 <div className={`max-w-[85%] rounded-lg px-5 py-3 text-sm font-medium leading-relaxed whitespace-pre-line ${
                    msg.role === 'user' 
                      ? 'bg-vivid-green text-black rounded-tr-none shadow-lg shadow-green-900/20' 
                      : 'bg-[#2a2a2a] text-stone-200 rounded-tl-none border border-white/5 shadow-lg'
@@ -1192,9 +1253,16 @@ const TurntableChat: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Ask about our gold collection..."
+                placeholder="Ask Spin about music..."
                 className="flex-1 bg-black text-gold-light text-sm rounded-none border border-stone-800 px-4 py-3 focus:outline-none focus:border-gold-light focus:ring-1 focus:ring-gold-light placeholder-stone-600 transition-all"
               />
+              <button 
+                onClick={handleVoiceInput}
+                className={`px-3 transition-all border border-stone-800 ${isListening ? 'bg-red-600 text-white animate-pulse border-red-600' : 'bg-black text-stone-400 hover:text-gold-light'}`}
+                title="Voice Input"
+              >
+                 <Mic size={18} />
+              </button>
               <button 
                 onClick={handleSend}
                 disabled={isThinking}
@@ -1512,7 +1580,7 @@ const App: React.FC = () => {
         />
       )}
       
-      <TurntableChat />
+      <TurntableChat language={language} />
     </div>
   );
 };
